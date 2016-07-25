@@ -35,4 +35,18 @@ describe CarrierWave::Storage::AzureRM::File do
       end
     end
   end
+
+  describe '#exists?' do
+    before do
+      allow(storage.connection).to receive(:get_blob).and_return(nil)
+    end
+
+    subject { CarrierWave::Storage::AzureRM::File.new(uploader, storage.connection, 'dummy.txt').exists? }
+
+    context 'when blob file does not exist' do
+      it 'should return false' do
+        expect(subject).to eql false
+      end
+    end
+  end
 end
