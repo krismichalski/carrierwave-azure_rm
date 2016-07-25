@@ -15,8 +15,10 @@ module CarrierWave
 
       def connection
         @connection ||= begin
-          client = ::Azure::Storage.client(storage_account_name: uploader.send("azure_storage_account_name"), storage_access_key: uploader.send("azure_storage_access_key"))
-          client.blobClient
+          %i(storage_account_name storage_access_key storage_blob_host).each do |key|
+            ::Azure::Storage.send("#{key}=", uploader.send("azure_#{key}"))
+          end
+          Azure::Storage::Blob::BlobService.new
         end
       end
 
@@ -27,7 +29,6 @@ module CarrierWave
           @uploader = uploader
           @connection = connection
           @path = path
-          ensure_container_exists(uploader.send("azure_container"))
         end
 
         def ensure_container_exists(name)
@@ -37,10 +38,8 @@ module CarrierWave
         end
 
         def store!(file)
-          @content = file.read
+          ensure_container_exists(@uploader.send("azure_container"))
           @content_type = file.content_type
-          @connection.create_block_blob @uploader.azure_container, @path, @content, content_type: @content_type
-
           file_to_send  = ::File.open(file.file, 'rb')
           blocks        = []
 
@@ -48,12 +47,12 @@ module CarrierWave
             block_id = Base64.urlsafe_encode64(SecureRandom.uuid)
 
             @content = file_to_send.read 4194304 # Send 4MB chunk
-            @connection.create_blob_block @uploader.azure_container, @path, block_id, @content
+            @connection.put_blob_block @uploader.azure_container, @path, block_id, @content
             blocks << [block_id]
           end
 
           # Commit block blobs
-          @connection.commit_blob_blocks @uploader.azure_container, @path, blocks
+          @connection.commit_blob_blocks @uploader.azure_container, @path, blocks, content_type: @content_type
 
           true
         end
