@@ -11,4 +11,8 @@ describe CarrierWave::Uploader::Base do
     is_expected.to respond_to(:azure_storage_blob_host)
     is_expected.to respond_to(:azure_container)
   end
+
+  it 'should have public_access_level blob by default' do
+    expect(described_class.public_access_level).to eq 'blob'
+  end
 end
