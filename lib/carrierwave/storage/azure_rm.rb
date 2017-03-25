@@ -40,8 +40,14 @@ module CarrierWave
 
         def ensure_container_exists(name)
           unless @connection.list_containers.any? { |c| c.name == name }
-            @connection.create_container(name, public_access_level: @uploader.public_access_level)
+            @connection.create_container(name, access_level_option)
           end
+        end
+
+        def access_level_option
+          lvl = @uploader.public_access_level
+          raise "Invalid Access level #{lvl}." unless %w(private blob container).include? lvl
+          lvl == 'private' ? {} : { :public_access_level => lvl }
         end
 
         def resolve_access_level
