@@ -107,13 +107,20 @@ module CarrierWave
         private
 
         def blob
-          load_content if @blob.nil?
+          load_blob if @blob.nil?
           @blob
         end
 
         def content
           load_content if @content.nil?
           @content
+        end
+
+        def load_blob
+          @blob = begin
+            @connection.get_blob_properties @uploader.azure_container, @path
+          rescue ::Azure::Core::Http::HTTPError
+          end
         end
 
         def load_content
