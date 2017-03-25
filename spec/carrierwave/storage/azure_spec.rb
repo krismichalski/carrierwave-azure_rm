@@ -68,11 +68,35 @@ describe CarrierWave::Storage::AzureRM do
     it_should_behave_like 'an expected return value' do
       subject { stored_file }
     end
+
+    context 'private container' do
+      before {
+        allow(uploader).to receive(:public_access_level).and_return('private')
+        allow(uploader).to receive(:azure_container).and_return('carrerwaveprivate')
+        allow(uploader).to receive(:auto_sign_urls).and_return(true)
+      }
+
+      it_should_behave_like 'an expected return value' do
+        subject { stored_file }
+      end
+    end
   end
 
   describe '#retrieve' do
     it_should_behave_like 'an expected return value' do
       subject { retrieved_file }
+    end
+
+    context 'private container' do
+      before {
+        allow(uploader).to receive(:public_access_level).and_return('private')
+        allow(uploader).to receive(:azure_container).and_return('carrerwaveprivate')
+        allow(uploader).to receive(:auto_sign_urls).and_return(true)
+      }
+
+      it_should_behave_like 'an expected return value' do
+        subject { retrieved_file }
+      end
     end
   end
 end

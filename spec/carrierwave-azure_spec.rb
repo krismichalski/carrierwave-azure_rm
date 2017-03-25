@@ -10,6 +10,7 @@ describe CarrierWave::Uploader::Base do
     is_expected.to respond_to(:azure_storage_access_key)
     is_expected.to respond_to(:azure_storage_blob_host)
     is_expected.to respond_to(:azure_container)
+    is_expected.to respond_to(:auto_sign_urls)
   end
 
   it 'should have public_access_level blob by default' do

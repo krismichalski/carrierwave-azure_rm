@@ -44,13 +44,7 @@ module CarrierWave
           end
         end
 
-        def access_level_option
-          lvl = @uploader.public_access_level
-          raise "Invalid Access level #{lvl}." unless %w(private blob container).include? lvl
-          lvl == 'private' ? {} : { :public_access_level => lvl }
-        end
-
-        def resolve_access_level
+        def access_level
           unless @public_access_level
             container, signed_identifiers = @connection.get_container_acl(@uploader.send("azure_container"))
             @public_access_level = container.public_access_level || 'private' # when container access level is private, it returns nil
@@ -83,9 +77,8 @@ module CarrierWave
           if @uploader.asset_host
             "#{@uploader.asset_host}/#{path}"
           else
-            resolve_access_level
             uri = @connection.generate_uri(path)
-            if @public_access_level == 'private' && !options[:skip_signing]
+            if sign_url?(options)
               @signer.signed_uri(uri, false, { permissions: 'r' }).to_s
             else
               uri.to_s
@@ -132,6 +125,16 @@ module CarrierWave
         end
 
         private
+
+        def access_level_option
+          lvl = @uploader.public_access_level
+          raise "Invalid Access level #{lvl}." unless %w(private blob container).include? lvl
+          lvl == 'private' ? {} : { :public_access_level => lvl }
+        end
+
+        def sign_url?(options)
+          @uploader.auto_sign_urls && !options[:skip_signing] && access_level == 'private'
+        end
 
         def blob
           load_blob if @blob.nil?

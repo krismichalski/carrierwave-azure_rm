@@ -8,6 +8,7 @@ class CarrierWave::Uploader::Base
   add_config :azure_storage_blob_host
   add_config :azure_container
   add_config :public_access_level
+  add_config :auto_sign_urls
 
   configure do |config|
     config.public_access_level = 'blob'
