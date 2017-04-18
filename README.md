@@ -41,8 +41,12 @@ end
 ```
 
 ## Private blobs
-If your container access policy is set to private, carrierwave-azure_rm will automatically
-returned signed urls on the files.
+If your container access policy is set to private, carrierwave-azure_rm can automatically
+return signed urls on the files. Enable auto_sign in the configuration:
+
+```ruby
+config.auto_sign_urls = true
+```
 
 If you wish a newly created container to be initialized with a specific access_level you can set the following in
 your config:
