@@ -4,13 +4,13 @@ module CarrierWave
   module Storage
     class AzureRM < Abstract
       def store!(file)
-        azure_file = CarrierWave::Storage::AzureRM::File.new(uploader, connection, uploader.store_path)
+        azure_file = CarrierWave::Storage::AzureRM::File.new(uploader, connection, uploader.store_path, signer)
         azure_file.store!(file)
         azure_file
       end
 
       def retrieve!(identifer)
-        CarrierWave::Storage::AzureRM::File.new(uploader, connection, uploader.store_path(identifer))
+        CarrierWave::Storage::AzureRM::File.new(uploader, connection, uploader.store_path(identifer), signer)
       end
 
       def connection
@@ -22,19 +22,34 @@ module CarrierWave
         end
       end
 
+      def signer
+        @signer ||= begin
+          ::Azure::Storage::Core::Auth::SharedAccessSignature.new
+        end
+      end
+
       class File
         attr_reader :path
 
-        def initialize(uploader, connection, path)
+        def initialize(uploader, connection, path, signer = nil)
           @uploader = uploader
           @connection = connection
+          @signer = signer
           @path = path
         end
 
         def ensure_container_exists(name)
           unless @connection.list_containers.any? { |c| c.name == name }
-            @connection.create_container(name, public_access_level: 'blob')
+            @connection.create_container(name, access_level_option)
           end
+        end
+
+        def access_level
+          unless @public_access_level
+            container, signed_identifiers = @connection.get_container_acl(@uploader.send("azure_container"))
+            @public_access_level = container.public_access_level || 'private' # when container access level is private, it returns nil
+          end
+          @public_access_level
         end
 
         def store!(file)
@@ -62,7 +77,15 @@ module CarrierWave
           if @uploader.asset_host
             "#{@uploader.asset_host}/#{path}"
           else
-            @connection.generate_uri(path).to_s
+            uri = @connection.generate_uri(path)
+            if sign_url?(options)
+              @signer.signed_uri(uri, false, { permissions: 'r',
+                                               resource: 'b',
+                                               start: 1.minute.ago.utc.iso8601,
+                                               expiry: expires_at}).to_s
+            else
+              uri.to_s
+            end
           end
         end
 
@@ -88,7 +111,7 @@ module CarrierWave
         end
 
         def filename
-          URI.decode(url).gsub(/.*\/(.*?$)/, '\1')
+          URI.decode(url(skip_signing: true)).gsub(/.*\/(.*?$)/, '\1')
         end
 
         def extension
@@ -105,6 +128,21 @@ module CarrierWave
         end
 
         private
+
+        def access_level_option
+          lvl = @uploader.public_access_level
+          raise "Invalid Access level #{lvl}." unless %w(private blob container).include? lvl
+          lvl == 'private' ? {} : { :public_access_level => lvl }
+        end
+
+        def expires_at
+          expiry = Time.now + @uploader.token_expire_after
+          expiry.utc.iso8601
+        end
+
+        def sign_url?(options)
+          @uploader.auto_sign_urls && !options[:skip_signing] && access_level == 'private'
+        end
 
         def blob
           load_blob if @blob.nil?

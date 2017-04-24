@@ -40,6 +40,26 @@ class ExampleUploader < CarrierWave::Uploader::Base
 end
 ```
 
+## Private blobs
+If your container access policy is set to private, carrierwave-azure_rm can automatically
+return signed urls on the files. Enable auto_sign in the configuration:
+
+```ruby
+config.auto_sign_urls = true
+config.token_expire_after = 3600 # optional - Set the expire time of the url to 3600 seconds. Default is 1800 seconds 
+```
+
+If you wish a newly created container to be initialized with a specific access_level you can set the following in
+your config:
+
+```ruby
+config.public_access_level = 'private' # optional - possible values are blob, private, container
+```
+
+This config is only required if your container does not exist and you want it to be configured automatically.
+
+[Manage access to blobs](https://docs.microsoft.com/en-us/azure/storage/storage-manage-access-to-resources) 
+
 ## Issues
 If you have any problems with or questions about this image, please contact me through a [GitHub issue](https://github.com/nooulaif/carrierwave-azure_rm/issues).
 
