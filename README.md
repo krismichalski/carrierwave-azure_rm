@@ -52,7 +52,7 @@ If you wish a newly created container to be initialized with a specific access_l
 your config:
 
 ```ruby
-config.public_access_level = 'priavte' # optional - possible values are blob, private, container
+config.public_access_level = 'private' # optional - possible values are blob, private, container
 ```
 
 This config is only required if your container does not exist and you want it to be configured automatically.
