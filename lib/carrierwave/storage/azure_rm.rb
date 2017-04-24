@@ -79,7 +79,10 @@ module CarrierWave
           else
             uri = @connection.generate_uri(path)
             if sign_url?(options)
-              @signer.signed_uri(uri, false, { permissions: 'r' }).to_s
+              @signer.signed_uri(uri, false, { permissions: 'r',
+                                               resource: 'b',
+                                               start: 1.minute.ago.utc.iso8601,
+                                               expiry: expires_at}).to_s
             else
               uri.to_s
             end
@@ -130,6 +133,11 @@ module CarrierWave
           lvl = @uploader.public_access_level
           raise "Invalid Access level #{lvl}." unless %w(private blob container).include? lvl
           lvl == 'private' ? {} : { :public_access_level => lvl }
+        end
+
+        def expires_at
+          expiry = Time.now + @uploader.token_expire_after
+          expiry.utc.iso8601
         end
 
         def sign_url?(options)

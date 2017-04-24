@@ -46,6 +46,7 @@ return signed urls on the files. Enable auto_sign in the configuration:
 
 ```ruby
 config.auto_sign_urls = true
+config.token_expire_after = 3600 # optional - Set the expire time of the url to 3600 seconds. Default is 1800 seconds 
 ```
 
 If you wish a newly created container to be initialized with a specific access_level you can set the following in
