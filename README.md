@@ -61,7 +61,7 @@ This config is only required if your container does not exist and you want it to
 [Manage access to blobs](https://docs.microsoft.com/en-us/azure/storage/storage-manage-access-to-resources) 
 
 ## Issues
-If you have any problems with or questions about this image, please contact me through a [GitHub issue](https://github.com/nooulaif/carrierwave-azure_rm/issues).
+If you have any problems with or questions about this image, please contact me through a [GitHub issue](https://github.com/krismichalski/carrierwave-azure_rm/issues).
 
 ## Contributing
 You are invited to contribute new features, fixes, or updates, large or small.
@@ -83,4 +83,4 @@ cp spec/environment.rb.sample spec/environment.rb
 5. Create new Pull Request
 
 ## License
-Released under the MIT License. See [LICENSE](https://github.com/nooulaif/carrierwave-azure_rm/blob/master/LICENSE) file for details.
+Released under the MIT License. See [LICENSE](https://github.com/krismichalski/carrierwave-azure_rm/blob/master/LICENSE) file for details.
