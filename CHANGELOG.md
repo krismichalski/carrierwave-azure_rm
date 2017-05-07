@@ -1,5 +1,12 @@
 # Change Log
 
+## [v0.1.1](https://github.com/krismichalski/carrierwave-azure_rm/tree/v0.1.1) (2017-05-07)
+[Full Changelog](https://github.com/krismichalski/carrierwave-azure_rm/compare/v0.1.0...v0.1.1)
+
+**Other:**
+
+- Changed owner metadata
+
 ## [v0.1.0](https://github.com/krismichalski/carrierwave-azure_rm/tree/v0.1.0) (2017-04-24)
 [Full Changelog](https://github.com/krismichalski/carrierwave-azure_rm/compare/v0.0.3...v0.1.0)
 
