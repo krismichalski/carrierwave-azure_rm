@@ -111,7 +111,7 @@ module CarrierWave
         end
 
         def filename
-          URI.decode(url(skip_signing: true)).gsub(/.*\/(.*?$)/, '\1')
+          CGI.unescape(url(skip_signing: true)).gsub(/.*\/(.*?$)/, '\1')
         end
 
         def extension
