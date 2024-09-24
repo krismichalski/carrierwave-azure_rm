@@ -77,7 +77,7 @@ module CarrierWave
           if @uploader.asset_host
             "#{@uploader.asset_host}/#{path}"
           else
-            uri = @connection.generate_uri(path)
+            uri = @connection.generate_uri(CGI.escape(path))
             if sign_url?(options)
               @signer.signed_uri(uri, false, { permissions: 'r',
                                                resource: 'b',
@@ -111,7 +111,7 @@ module CarrierWave
         end
 
         def filename
-          URI.decode(url(skip_signing: true)).gsub(/.*\/(.*?$)/, '\1')
+          CGI.unescape(url(skip_signing: true)).gsub(/.*\/(.*?$)/, '\1')
         end
 
         def extension
